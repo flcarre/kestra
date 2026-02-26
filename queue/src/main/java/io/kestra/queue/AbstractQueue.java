@@ -34,7 +34,7 @@ abstract class AbstractQueue<T extends Event> implements GenericQueueInterface<T
         this.cls = cls;
         this.queueService = queueService;
         int maxAsyncThreads = Math.max(4, executorsUtils.getAllocatedCpuCores());
-        this.asyncPoolExecutor = executorsUtils.maxCachedThreadPool(maxAsyncThreads, "queue-async-" + queueName());
+        this.asyncPoolExecutor = executorsUtils.maxCachedVirtualThreadPool(maxAsyncThreads, "queue-async-" + queueName());
         this.emitCounter = metricRegistry.counter(MetricRegistry.METRIC_QUEUE_EMIT_COUNT, MetricRegistry.METRIC_QUEUE_EMIT_COUNT_DESCRIPTION, MetricRegistry.TAG_QUEUE_NAME, queueName());
 
         if (LOG.isDebugEnabled()) {
