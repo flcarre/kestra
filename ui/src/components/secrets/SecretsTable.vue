@@ -138,7 +138,7 @@
             </template>
         </DataTable>
 
-        <Drawer
+        <ks-drawer
             v-if="addSecretDrawerVisible"
             v-model="addSecretDrawerVisible"
             :title="secretModalTitle"
@@ -214,7 +214,7 @@
                     {{ $t('save') }}
                 </ks-button>
             </template>
-        </Drawer>
+        </ks-drawer>
     </div>
 </template>
 
@@ -237,7 +237,6 @@
 
     import Id from "../Id.vue";
     import IconButton from "../IconButton.vue";
-    import Drawer from "../Drawer.vue";
     import Labels from "../layout/Labels.vue";
     import KSFilter from "../filter/components/KSFilter.vue";
     import DataTable from "../layout/DataTable.vue";

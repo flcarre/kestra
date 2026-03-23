@@ -247,7 +247,7 @@
         </template>
     </ks-dialog>
 
-    <Drawer
+    <ks-drawer
         v-if="isOpen"
         v-model="isOpen"
     >
@@ -257,7 +257,7 @@
 
         <Markdown v-if="triggerDefinition && (triggerDefinition as any).description" :source="(triggerDefinition as any).description" />
         <Vars :data="modalData" />
-    </Drawer>
+    </ks-drawer>
 </template>
 
 <script setup lang="ts">
@@ -279,7 +279,6 @@
 
     import Id from "../Id.vue";
     import IconButton from "../IconButton.vue";
-    import Drawer from "../Drawer.vue";
     //@ts-expect-error no declared types
     import FlowRun from "./FlowRun.vue";
     import Vars from "../executions/Vars.vue";
