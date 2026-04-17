@@ -4,9 +4,9 @@ import {useMiscStore} from "override/stores/misc";
 import {FilterValue} from "../utils/filterTypes";
 
 import {State} from "@kestra-io/ui-libs";
-import {auditLogTypes} from "../../../models/auditLogTypes";
 import permission from "../../../models/permission";
 import action from "../../../models/action";
+import {auditLogTypes} from "../../../models/auditLogTypes.ts";
 
 const capitalize = (str: string): string => {
     return str.charAt(0).toUpperCase() + str.slice(1);
