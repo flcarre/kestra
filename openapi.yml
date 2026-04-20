@@ -312,6 +312,43 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
+  /api/v1/plugins/triggers:
+    get:
+      tags:
+      - Plugins
+      summary: Get list of trigger plugins grouped by category
+      description: "Feeds the 'Add Trigger' catalog UI. Returns one entry per non-internal,\
+        \ non-deprecated trigger class, classified as core (bundled with Kestra Core),\
+        \ realtime (implements RealtimeTriggerInterface) or app (implements PollingTriggerInterface).\
+        \ Optionally filter by group. The 'ee' flag is true when the trigger ships\
+        \ with an Enterprise Edition module."
+      operationId: listTriggerPlugins
+      parameters:
+      - name: group
+        in: query
+        description: "Optional category filter: core, realtime, or app"
+        explode: false
+        schema:
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/TriggerPluginCategory"
+      - name: includeDeprecated
+        in: query
+        description: Include deprecated triggers
+        explode: false
+        schema:
+          type: boolean
+          nullable: true
+          default: false
+      responses:
+        "200":
+          description: listTriggerPlugins 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TriggerPluginDto"
   /api/v1/plugins/{cls}:
     get:
       tags:
@@ -8165,6 +8202,52 @@ components:
             $ref: "#/components/schemas/TriggerController.ApiTriggerId"
         disabled:
           type: boolean
+    TriggerPluginCategory:
+      type: string
+      description: |-
+        Category bucket for the "Add Trigger" catalog in the UI.
+
+        Derived from the owning RegisteredPlugin's provenance and the interfaces the trigger
+        class implements:
+
+        * #CORE - trigger is bundled with Kestra (no external plugin location).
+        * #REALTIME - external trigger implementing RealtimeTriggerInterface.
+        * #APP - external trigger, typically implementing PollingTriggerInterface.
+        Core precedence wins over realtime/app so a bundled core trigger (for example Webhook) is CORE even if it otherwise looks like a realtime or polling trigger.
+      enum:
+      - CORE
+      - REALTIME
+      - APP
+      - UNKNOWN
+      x-type: String
+    TriggerPluginDto:
+      type: object
+      properties:
+        type:
+          type: string
+          description: fully qualified class name (for example `io.kestra.plugin.core.trigger.Schedule`)
+        name:
+          type: string
+          description: "human-readable name (Schema#title if set, otherwise simple\
+            \ class name)"
+        description:
+          type: string
+          description: one-line description from the plugin
+        group:
+          $ref: "#/components/schemas/TriggerPluginCategory"
+        ee:
+          type: boolean
+          description: "true when the trigger is only available in Enterprise Edition\
+            \ (bundled with EE core, or shipped by a plugin distributed under an Enterprise\
+            \ license)"
+        icon:
+          type: string
+          description: icon key resolvable via `GET /api/v1/plugins/icons`
+        deprecated:
+          type: boolean
+          description: whether the trigger is deprecated
+      description: Lightweight descriptor of a trigger plugin class for the "Add Trigger"
+        catalog UI.
     Type:
       type: string
       enum:
