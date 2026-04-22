@@ -27,9 +27,6 @@ plugins {
     // helper
     id "com.github.ben-manes.versions" version "0.54.0"
 
-    // front
-    id 'com.github.node-gradle.node' version '7.1.0'
-
     // release
     id 'net.researchgate.release' version '3.1.0'
     id "com.gorylenko.gradle-git-properties" version "2.5.7"
@@ -519,7 +516,6 @@ distZip.dependsOn shadowJar
 distTar.dependsOn shadowJar
 startScripts.dependsOn shadowJar
 startShadowScripts.dependsOn jar
-shadowJar.dependsOn 'ui:assembleFrontend'
 shadowJar.dependsOn jar
 
 /**********************************************************************************************************************\
@@ -601,12 +597,10 @@ subprojects {subProject ->
 
         tasks.register('sourcesJar', Jar) {
             dependsOn = [':core:copyGradleProperties']
-            dependsOn = [':ui:assembleFrontend']
             archiveClassifier.set('sources')
             from sourceSets.main.allSource
         }
         sourcesJar.dependsOn ':core:copyGradleProperties'
-        sourcesJar.dependsOn ':ui:assembleFrontend'
 
         tasks.register('javadocJar', Jar) {
             archiveClassifier.set('javadoc')
