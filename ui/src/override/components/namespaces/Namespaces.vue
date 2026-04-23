@@ -86,7 +86,7 @@
     import Action from "../../../components/namespaces/components/buttons/Action.vue";
     import KSFilter from "../../../components/filter/components/KSFilter.vue";
     import {useNamespacesFilter} from "../../../components/filter/configurations";
-    import permission from "../../../models/permission";
+    import resource from "../../../models/resource";
     import action from "../../../models/action";
 
     import useRestoreUrl from "../../../composables/useRestoreUrl";
@@ -117,7 +117,7 @@
 
     const authStore = useAuthStore();
     const canCreate = computed(() => {
-        return authStore.user?.hasAnyAction(permission.NAMESPACE, action.CREATE);
+        return authStore.user?.hasAnyAction(resource.NAMESPACE, action.CREATE);
     });
 
     const namespaces = ref([]) as Ref<Namespace[]>;

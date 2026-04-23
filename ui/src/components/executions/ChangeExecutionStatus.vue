@@ -60,7 +60,7 @@
     import SwapHorizontal from "vue-material-design-icons/SwapHorizontal.vue";
 
     import {State, Status} from "@kestra-io/ui-libs";
-    import permission from "../../models/permission";
+    import resource from "../../models/resource";
     import action from "../../models/action";
     import {useToast} from "../../utils/toast";
 
@@ -111,7 +111,7 @@
     });
 
     const enabled = computed(() => {
-        if (!(authStore.user?.isAllowed(permission.EXECUTION, action.UPDATE, props.execution.namespace))) {
+        if (!(authStore.user?.isAllowed(resource.EXECUTION, action.UPDATE, props.execution.namespace))) {
             return false;
         }
 

@@ -189,7 +189,7 @@
                         </el-table-column>
 
                         <el-table-column
-                            v-if="authStore.user?.hasAnyAction(permission.EXECUTION, action.UPDATE)"
+                            v-if="authStore.user?.hasAnyAction(resource.EXECUTION, action.UPDATE)"
                             columnKey="action"
                             className="row-action"
                         >
@@ -231,7 +231,7 @@
 
                                     <el-button
                                         :icon="CalendarCollapseHorizontalOutline"
-                                        v-if="authStore.user?.hasAnyAction(permission.EXECUTION, action.UPDATE)"
+                                        v-if="authStore.user?.hasAnyAction(resource.EXECUTION, action.UPDATE)"
                                         @click="setBackfillModal(scope.row, true)"
                                         size="small"
                                         type="primary"
@@ -349,7 +349,7 @@
     import {type ColumnConfig, useTableColumns} from "../../composables/useTableColumns";
 
     import action from "../../models/action";
-    import permission from "../../models/permission";
+    import resource from "../../models/resource";
     import LockOff from "vue-material-design-icons/LockOff.vue";
     import PlayBox from "vue-material-design-icons/PlayBox.vue";
     import PauseBox from "vue-material-design-icons/PauseBox.vue";

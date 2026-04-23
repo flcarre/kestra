@@ -54,7 +54,7 @@
     import Pencil from "vue-material-design-icons/Pencil.vue";
     import Plus from "vue-material-design-icons/Plus.vue";
 
-    import permission from "../../../models/permission";
+    import resource from "../../../models/resource";
     import action from "../../../models/action";
     import {ALLOWED_CREATION_ROUTES} from "../composables/useDashboards";
 
@@ -63,9 +63,9 @@
         load: {type: Function, default: undefined},
     });
 
-    const isAllowedFlow = computed(() => authStore.user?.isAllowed(permission.FLOW, action.CREATE, "*"));
+    const isAllowedFlow = computed(() => authStore.user?.isAllowed(resource.FLOW, action.CREATE, "*"));
 
-    const isAllowedDashboard = computed(() => authStore.user?.isAllowed(permission.DASHBOARD, action.CREATE, "*"));
+    const isAllowedDashboard = computed(() => authStore.user?.isAllowed(resource.DASHBOARD, action.CREATE, "*"));
 
     const routeInfo = computed(() => ({title: props.dashboard?.title ?? t("overview")}));
 
