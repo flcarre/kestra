@@ -22,9 +22,7 @@ triggers:
     type: io.kestra.plugin.core.trigger.Flow
     inputs:
       testFile: "{{ trigger.outputs.myFile }}"
-    preconditions:
-      id: output_01_success
-      flows:
-        - namespace: io.kestra.tests.trigger.foreachitem
-          flowId: flow-trigger-for-each-item-child
-          states: [SUCCESS]
+    dependsOn:
+      - namespace: io.kestra.tests.trigger.foreachitem
+        flowId: flow-trigger-for-each-item-child
+        states: [SUCCESS]

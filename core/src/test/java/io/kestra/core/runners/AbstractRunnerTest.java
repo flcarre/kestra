@@ -274,27 +274,6 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows(
-        { "flows/valids/flow-trigger-preconditions-flow-listen.yaml",
-            "flows/valids/flow-trigger-preconditions-flow-a.yaml",
-            "flows/valids/flow-trigger-preconditions-flow-b.yaml" }
-    )
-    void flowTriggerPreconditions() throws Exception {
-        multipleConditionTriggerCaseTest.flowTriggerPreconditions();
-    }
-
-    @Test
-    @LoadFlows(
-        value = { "flows/valids/flow-trigger-preconditions-flow-listen.yaml",
-            "flows/valids/flow-trigger-preconditions-flow-a.yaml",
-            "flows/valids/flow-trigger-preconditions-flow-b.yaml" },
-        tenantId = TENANT_1
-    )
-    void flowTriggerPreconditionsMergeOutputs() throws Exception {
-        multipleConditionTriggerCaseTest.flowTriggerPreconditionsMergeOutputs(TENANT_1);
-    }
-
-    @Test
     @LoadFlows({ "flows/valids/flow-trigger-paused-listen.yaml", "flows/valids/flow-trigger-paused-flow.yaml" })
     void flowTriggerOnPaused() throws Exception {
         multipleConditionTriggerCaseTest.flowTriggerOnPaused();
@@ -304,12 +283,6 @@ public abstract class AbstractRunnerTest {
     @LoadFlows({ "flows/valids/flow-trigger-for-each-item-parent.yaml", "flows/valids/flow-trigger-for-each-item-child.yaml", "flows/valids/flow-trigger-for-each-item-grandchild.yaml" })
     void forEachItemWithFlowTrigger() throws Exception {
         multipleConditionTriggerCaseTest.forEachItemWithFlowTrigger();
-    }
-
-    @Test
-    @LoadFlows({ "flows/valids/flow-trigger-multiple-preconditions-flow-a.yaml", "flows/valids/flow-trigger-multiple-preconditions-flow-listen.yaml" })
-    void flowTriggerMultiplePreconditions() throws Exception {
-        multipleConditionTriggerCaseTest.flowTriggerMultiplePreconditions();
     }
 
     @Test
