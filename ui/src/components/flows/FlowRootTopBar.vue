@@ -8,6 +8,7 @@
             <span :class="{'body-color': isDeleted}">
                 {{ routeInfo.title }}
                 <Badge v-if="routeInfo.beta" label="Beta" />
+                <Badge v-if="isDraft" :label="$t('draft')" />
             </span>
         </template>
         <template #additional-right>
@@ -40,6 +41,7 @@
     const authStore = useAuthStore();
 
     const isDeleted = computed(() => flowStore.flow?.deleted || false);
+    const isDraft = computed(() => flowStore.flow?.draft || false);
     const isAllowedToEdit = computed(() =>
         authStore.user?.isAllowed(permission.FLOW, action.UPDATE, flowStore.flow?.namespace)
     );

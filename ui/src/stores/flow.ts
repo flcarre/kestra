@@ -3,6 +3,7 @@ import {ElMessageBox} from "element-plus";
 import permission from "../models/permission";
 import action from "../models/action";
 import * as YAML_UTILS from "@kestra-io/ui-libs/flow-yaml-utils";
+import {parseDocument as parseYamlDocument, Pair as YamlPair, Scalar as YamlScalar} from "yaml";
 import Utils from "../utils/utils";
 import {apiUrl} from "override/utils/route";
 import {useCoreStore} from "./core";
@@ -64,6 +65,11 @@ export interface Flow {
     revision?: number;
     deleted?: boolean;
     disabled?: boolean;
+    /**
+     * When true the flow revision is a draft: it will not be picked up by webhooks, schedules,
+     * subflows or by executions started without an explicit revision.
+     */
+    draft?: boolean;
     labels?: Record<string, string | boolean>;
     triggers?: Trigger[];
     inputs?: Input[];
@@ -137,7 +143,34 @@ export const useFlowStore = defineStore("flow", () => {
         unsavedChangesStore.unsavedChange = newValue;
     });
 
-    async function saveAll(): Promise<FlowSaveOutcome> {
+    function applyDraftFlag(draft: boolean) {
+        // The Save / Save as draft buttons act as commands: they always set the field
+        // explicitly so the persisted revision matches the action the user took, regardless
+        // of what was typed in the YAML. We can't go through YAML_UTILS.updateMetadata here:
+        // its internal cleanMetadataDocument drops keys outside an allow-list of known root
+        // properties. Instead, edit the YAML document directly so the `draft` key survives.
+        const source = flowYaml.value ?? "";
+        if (!source) {
+            return;
+        }
+        const doc = parseYamlDocument(source) as any;
+        if (!doc?.contents?.items) {
+            return;
+        }
+        const existing = doc.contents.items.find(
+            (item: any) => (item.key?.value ?? item.key) === "draft"
+        );
+        if (existing) {
+            existing.value = draft;
+        } else {
+            doc.contents.items.push(new YamlPair(new YamlScalar("draft"), draft));
+        }
+        flowYaml.value = doc.toString();
+    }
+
+    async function saveAll(draft: boolean = false): Promise<FlowSaveOutcome> {
+        applyDraftFlag(draft);
+
         if ((!haveChange.value && !isCreating.value) || flowErrors.value?.length) {
             return (!haveChange.value && !isCreating.value) ? "no_op" : "blocked";
         }
@@ -151,17 +184,22 @@ export const useFlowStore = defineStore("flow", () => {
         return outcome;
     }
 
+    async function saveAsDraft(): Promise<FlowSaveOutcome> {
+        return saveAll(true);
+    }
+
     const route = useRoute();
 
     const getNamespace = () => {
         return route.query.namespace || defaultNamespace();
     }
 
-    async function save(): Promise<FlowSaveOutcome> {
+    async function save(draft: boolean = false): Promise<FlowSaveOutcome> {
         if (flowErrors.value?.length) {
             return "blocked";
         }
 
+        applyDraftFlag(draft);
         const source = flowYaml.value;
 
         if (source) {
@@ -959,6 +997,7 @@ function deleteFlowAndDependencies() {
         setOpenAiCopilot,
         onSaveMetadata,
         saveAll,
+        saveAsDraft,
         save,
         onEdit,
         initYamlSource,
