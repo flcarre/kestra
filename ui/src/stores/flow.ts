@@ -150,7 +150,7 @@ export const useFlowStore = defineStore("flow", () => {
     async function saveAll(draft: boolean = false): Promise<FlowSaveOutcome> {
         draftIntent.value = draft;
 
-        if ((!haveChange.value && !isCreating.value) || flowErrors.value?.length) {
+        if (!haveChange.value && !isCreating.value) {
             return (!haveChange.value && !isCreating.value) ? "no_op" : "blocked";
         }
 
@@ -322,7 +322,7 @@ export const useFlowStore = defineStore("flow", () => {
                         content: error.response.data
                     }
                 }
-                
+
                 throw error;
             }
         } else {
@@ -453,7 +453,7 @@ export const useFlowStore = defineStore("flow", () => {
         overallTotal.value = 1;
 
         return response.data;
-        
+
     }
     function loadTask(options: { namespace: string, id: string, taskId: string, revision?: string }) {
         return axios.get(
@@ -748,7 +748,7 @@ function deleteFlowAndDependencies() {
                 flowValidationIssues.constraints = t("flow creation denied in namespace", {namespace});
             }
         }
-        
+
         return axios.post(`${apiUrl()}/flows/validate`, options.flow, {...textYamlHeader, withCredentials: true})
             .then(response => {
                 const validResults = response.data[0] ?? {};
@@ -762,7 +762,7 @@ function deleteFlowAndDependencies() {
                 }
 
                 flowValidation.value = validResults;
-                
+
                 return validResults
             })
     }

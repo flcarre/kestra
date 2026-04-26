@@ -53,21 +53,16 @@
             >
                 {{ $t(showSaveAndExecute ? "save_and_execute" : "save") }}
             </el-button>
-            <el-tooltip
+            <el-button
+                :icon="FileDocumentEditOutline"
                 v-if="(isNamespace || isAllowedEdit) && !showSaveAndExecute"
-                :content="$t('save_as_draft_help')"
-                placement="top"
+                @click="forwardEvent('save-as-draft', $event)"
+                :type="playgroundStore.enabled ? undefined : 'primary'"
+                :disabled="!canSave"
+                class="edit-flow-save-as-draft-button"
             >
-                <el-button
-                    :icon="FileDocumentEditOutline"
-                    @click="forwardEvent('save-as-draft', $event)"
-                    :type="playgroundStore.enabled ? undefined : 'primary'"
-                    :disabled="hasErrors || !canSave"
-                    class="edit-flow-save-as-draft-button"
-                >
-                    {{ $t("save_as_draft") }}
-                </el-button>
-            </el-tooltip>
+                {{ $t("save_as_draft") }}
+            </el-button>
         </el-button-group>
     </div>
 </template>
