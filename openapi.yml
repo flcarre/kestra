@@ -3382,6 +3382,14 @@ paths:
       summary: Create a flow from yaml source
       operationId: createFlow
       parameters:
+      - name: draft
+        in: query
+        description: "Save the flow as a draft. Drafts are not picked up by webhooks,\
+          \ schedules or subflows and are not validated for constraint violations."
+        explode: false
+        schema:
+          type: boolean
+          default: false
       - name: tenant
         in: path
         required: true
@@ -4215,6 +4223,14 @@ paths:
         required: true
         schema:
           type: string
+      - name: draft
+        in: query
+        description: "Save the flow as a draft. Drafts are not picked up by webhooks,\
+          \ schedules or subflows and are not validated for constraint violations."
+        explode: false
+        schema:
+          type: boolean
+          default: false
       - name: tenant
         in: path
         required: true
