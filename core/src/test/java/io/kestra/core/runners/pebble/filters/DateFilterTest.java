@@ -13,8 +13,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.google.common.collect.ImmutableMap;
 
-import io.kestra.core.junit.annotations.FlakyTest;
-
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.runners.VariableRenderer;
@@ -166,27 +164,51 @@ class DateFilterTest {
         assertThat(render).isEqualTo("1378653552123");
     }
 
-    // Flaky around the day rollover: the rendered "now" is captured at instant T while the
-    // assertion's reference date is captured at T+epsilon, which differ across midnight.
-    @FlakyTest
     @Test
     void now() throws IllegalVariableEvaluationException {
+        // To avoid flakiness around the day rollover, sample the reference date both before
+        // and after the render and accept either - the rendered date can land on either side
+        // of midnight when the test runs at the boundary.
+        ZonedDateTime defaultBefore = ZonedDateTime.now();
         String render = variableRenderer.render("{{ now() }}", ImmutableMap.of());
-        assertThat(render).contains(ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        ZonedDateTime defaultAfter = ZonedDateTime.now();
+        assertThat(render).containsAnyOf(
+            defaultBefore.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            defaultAfter.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        );
 
+        ZonedDateTime lisbonBefore = ZonedDateTime.now(ZoneId.of("Europe/Lisbon"));
         render = variableRenderer.render("{{ now(timeZone=\"Europe/Lisbon\") }}", ImmutableMap.of());
+        ZonedDateTime lisbonAfter = ZonedDateTime.now(ZoneId.of("Europe/Lisbon"));
 
-        assertThat(render).contains(ZonedDateTime.now(ZoneId.of("Europe/Lisbon")).format(DateTimeFormatter.ISO_LOCAL_DATE));
-        assertThat(render).contains(ZonedDateTime.now(ZoneId.of("Europe/Lisbon")).format(DateTimeFormatter.ofPattern("HH:mm")));
+        assertThat(render).containsAnyOf(
+            lisbonBefore.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            lisbonAfter.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        );
+        assertThat(render).containsAnyOf(
+            lisbonBefore.format(DateTimeFormatter.ofPattern("HH:mm")),
+            lisbonAfter.format(DateTimeFormatter.ofPattern("HH:mm"))
+        );
 
+        ZonedDateTime localDateBefore = ZonedDateTime.now(ZoneId.of("Europe/Lisbon"));
         render = variableRenderer.render("{{ now(format=\"iso_local_date\") }}", ImmutableMap.of());
+        ZonedDateTime localDateAfter = ZonedDateTime.now(ZoneId.of("Europe/Lisbon"));
 
-        assertThat(render).isEqualTo(ZonedDateTime.now(ZoneId.of("Europe/Lisbon")).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        assertThat(render).isIn(
+            localDateBefore.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            localDateAfter.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        );
 
+        LocalDateTime sqlBefore = LocalDateTime.now();
         render = variableRenderer.render("{{ now(format=\"sql_milli\") }}", ImmutableMap.of());
+        LocalDateTime sqlAfter = LocalDateTime.now();
 
-        // a millisecond can pass between the render and now so we can't assert on a precise to millisecond date
-        assertThat(render).startsWith(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        // A few milliseconds can pass between the render and now so we can't assert on a
+        // precise to-the-millisecond date; allow either the before or after second to match.
+        assertThat(render).satisfiesAnyOf(
+            r -> assertThat(r).startsWith(sqlBefore.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))),
+            r -> assertThat(r).startsWith(sqlAfter.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+        );
         assertThat(render).hasSize(23);
     }
 
