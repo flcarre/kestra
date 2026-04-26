@@ -321,6 +321,7 @@ export const useExecutionsStore = defineStore("executions", () => {
         breakpoints?: string[];
         labels?: string[];
         scheduleDate?: string,
+        revision?: number,
     }) => {
         return axios.post<Execution>(`${apiUrl()}/executions/${options.namespace}/${options.id}`, Utils.toFormData(options.formData), {
             timeout: 60 * 60 * 1000,
@@ -331,7 +332,10 @@ export const useExecutionsStore = defineStore("executions", () => {
                 labels: options.labels ?? [],
                 scheduleDate: options.scheduleDate,
                 kind: options.kind,
-                breakpoints: options.breakpoints ? options.breakpoints.join(",") : undefined
+                breakpoints: options.breakpoints ? options.breakpoints.join(",") : undefined,
+                // Pin the revision the user is looking at. This is required for drafts (which the
+                // server otherwise refuses to resolve implicitly) and harmless for published flows.
+                revision: options.revision,
             }
         })
     }
