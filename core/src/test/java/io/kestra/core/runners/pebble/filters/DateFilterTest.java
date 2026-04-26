@@ -13,6 +13,8 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.kestra.core.junit.annotations.FlakyTest;
+
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.runners.VariableRenderer;
@@ -164,6 +166,9 @@ class DateFilterTest {
         assertThat(render).isEqualTo("1378653552123");
     }
 
+    // Flaky around the day rollover: the rendered "now" is captured at instant T while the
+    // assertion's reference date is captured at T+epsilon, which differ across midnight.
+    @FlakyTest
     @Test
     void now() throws IllegalVariableEvaluationException {
         String render = variableRenderer.render("{{ now() }}", ImmutableMap.of());

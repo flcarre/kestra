@@ -16,6 +16,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.junit.annotations.FlakyTest;
 import io.kestra.core.runners.VariableRenderer;
 import io.kestra.core.serializers.JacksonMapper;
 
@@ -41,6 +42,9 @@ class HttpFunctionTest {
         Assertions.assertTrue(rendered.startsWith("{\"todos\":[{"));
     }
 
+    // Hits a public service (dummyjson.com) which intermittently returns 5xx; flaky on infra
+    // hiccups rather than code changes.
+    @FlakyTest
     @Test
     void postWithBodyHttpCall() throws IllegalVariableEvaluationException {
         String rendered = variableRenderer.render(
