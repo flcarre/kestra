@@ -12,7 +12,7 @@ javaPlatform {
 dependencies {
     // versions for libraries with multiple module but no BOM
     def slf4jVersion = "2.0.17"
-    def protobufVersion = "3.25.9" // Orc still uses 3 see https://github.com/apache/orc/blob/main/java/pom.xml
+    def protobufVersion = "4.33.2" // ORC and mysql-connector-j now use 4.x; GCP libs require 4.x for RuntimeVersion
     def bouncycastleVersion = "1.84"
     def mavenResolverVersion = "2.0.10"
     def jollydayVersion = "1.5.6"
@@ -42,8 +42,7 @@ dependencies {
     api platform("dev.langchain4j:langchain4j-community-bom:$langchain4jCommunityVersion")
 
     constraints {
-        // downgrade to proto 1.3.2-alpha as 1.5.0 needs protobuf 4
-        api("io.opentelemetry.proto:opentelemetry-proto:1.3.2-alpha")
+        api("io.opentelemetry.proto:opentelemetry-proto:1.5.0")
         // need to force this dep as mysql-connector brings a version incompatible with the Google Cloud libs
         api("com.google.protobuf:protobuf-java:$protobufVersion")
         api("com.google.protobuf:protobuf-java-util:$protobufVersion")
