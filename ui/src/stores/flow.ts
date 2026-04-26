@@ -3,7 +3,6 @@ import {ElMessageBox} from "element-plus";
 import permission from "../models/permission";
 import action from "../models/action";
 import * as YAML_UTILS from "@kestra-io/ui-libs/flow-yaml-utils";
-import {parseDocument as parseYamlDocument, Pair as YamlPair, Scalar as YamlScalar} from "yaml";
 import Utils from "../utils/utils";
 import {apiUrl} from "override/utils/route";
 import {useCoreStore} from "./core";
@@ -143,33 +142,13 @@ export const useFlowStore = defineStore("flow", () => {
         unsavedChangesStore.unsavedChange = newValue;
     });
 
-    function applyDraftFlag(draft: boolean) {
-        // The Save / Save as draft buttons act as commands: they always set the field
-        // explicitly so the persisted revision matches the action the user took, regardless
-        // of what was typed in the YAML. We can't go through YAML_UTILS.updateMetadata here:
-        // its internal cleanMetadataDocument drops keys outside an allow-list of known root
-        // properties. Instead, edit the YAML document directly so the `draft` key survives.
-        const source = flowYaml.value ?? "";
-        if (!source) {
-            return;
-        }
-        const doc = parseYamlDocument(source) as any;
-        if (!doc?.contents?.items) {
-            return;
-        }
-        const existing = doc.contents.items.find(
-            (item: any) => (item.key?.value ?? item.key) === "draft"
-        );
-        if (existing) {
-            existing.value = draft;
-        } else {
-            doc.contents.items.push(new YamlPair(new YamlScalar("draft"), draft));
-        }
-        flowYaml.value = doc.toString();
-    }
+    // The draft flag is metadata about the flow revision, not part of the flow definition,
+    // so it travels alongside the request as a query parameter rather than being injected
+    // into the YAML source - mirroring how `revision` works.
+    const draftIntent = ref<boolean>(false);
 
     async function saveAll(draft: boolean = false): Promise<FlowSaveOutcome> {
-        applyDraftFlag(draft);
+        draftIntent.value = draft;
 
         if ((!haveChange.value && !isCreating.value) || flowErrors.value?.length) {
             return (!haveChange.value && !isCreating.value) ? "no_op" : "blocked";
@@ -199,7 +178,7 @@ export const useFlowStore = defineStore("flow", () => {
             return "blocked";
         }
 
-        applyDraftFlag(draft);
+        draftIntent.value = draft;
         const source = flowYaml.value;
 
         if (source) {
@@ -499,7 +478,10 @@ export const useFlowStore = defineStore("flow", () => {
         const flowData = YAML_UTILS.parse(options.flow)
         return axios.put(`${apiUrl()}/flows/${flowData.namespace}/${flowData.id}`, options.flow, {
             ...textYamlHeader,
-            ...VALIDATE
+            ...VALIDATE,
+            // Draft is a server-side flag, not part of the YAML the user wrote - we ride it
+            // alongside the request the same way `revision` is omitted from the editor source.
+            params: {draft: draftIntent.value}
         })
             .then(response => {
                 if (response.status >= 300) {
@@ -529,7 +511,9 @@ export const useFlowStore = defineStore("flow", () => {
         return axios.post(`${apiUrl()}/flows`, options.flow, {
             ...textYamlHeader,
             ...VALIDATE,
-            showMessageOnError: false
+            showMessageOnError: false,
+            // Draft is a server-side flag, not part of the YAML - see saveFlow().
+            params: {draft: draftIntent.value}
         }).then(response => {
             if (response.status >= 300) {
                 return Promise.reject(response)
