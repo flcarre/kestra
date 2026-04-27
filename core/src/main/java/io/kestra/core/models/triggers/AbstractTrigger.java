@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Plugin
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @Getter
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
