@@ -12,7 +12,7 @@ javaPlatform {
 dependencies {
     // versions for libraries with multiple module but no BOM
     def slf4jVersion = "2.0.17"
-    def protobufVersion = "4.33.2" // ORC and mysql-connector-j now use 4.x; GCP libs require 4.x for RuntimeVersion
+    def protobufVersion = "4.33.2"
     def bouncycastleVersion = "1.84"
     def mavenResolverVersion = "2.0.10"
     def jollydayVersion = "1.5.6"
