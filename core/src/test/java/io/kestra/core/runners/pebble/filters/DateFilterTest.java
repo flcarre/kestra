@@ -190,13 +190,16 @@ class DateFilterTest {
             lisbonAfter.format(DateTimeFormatter.ofPattern("HH:mm"))
         );
 
-        ZonedDateTime localDateBefore = ZonedDateTime.now(ZoneId.of("Europe/Lisbon"));
+        // {{ now(format="iso_local_date") }} formats in the JVM default zone (see AbstractDate),
+        // not in Europe/Lisbon - mirror that here so the test stays correct when the JVM runs
+        // in UTC, e.g., on CI.
+        ZonedDateTime systemDefaultBefore = ZonedDateTime.now();
         render = variableRenderer.render("{{ now(format=\"iso_local_date\") }}", ImmutableMap.of());
-        ZonedDateTime localDateAfter = ZonedDateTime.now(ZoneId.of("Europe/Lisbon"));
+        ZonedDateTime systemDefaultAfter = ZonedDateTime.now();
 
         assertThat(render).isIn(
-            localDateBefore.format(DateTimeFormatter.ISO_LOCAL_DATE),
-            localDateAfter.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            systemDefaultBefore.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            systemDefaultAfter.format(DateTimeFormatter.ISO_LOCAL_DATE)
         );
 
         LocalDateTime sqlBefore = LocalDateTime.now();

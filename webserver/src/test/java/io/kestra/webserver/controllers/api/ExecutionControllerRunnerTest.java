@@ -2555,7 +2555,7 @@ class ExecutionControllerRunnerTest {
 
     @Test
     @LoadFlows({ "flows/valids/failed-first.yaml" })
-    void restartExecutionByIdShouldSucceed() throws InterruptedException {
+    void restartExecutionByIdShouldSucceed() {
         Execution execution = client.toBlocking().retrieve(
             POST(
                 "/api/v1/main/executions/" + TESTS_FLOW_NS + "/failed-first",
@@ -2564,7 +2564,15 @@ class ExecutionControllerRunnerTest {
             Execution.class
         );
 
-        Thread.sleep(250);
+        // Wait for the execution to actually terminate before trying to restart it; a fixed
+        // sleep is not enough on a slow runner and the bulk restart endpoint refuses
+        // executions that are still running with "invalid bulk restart".
+        await().atMost(Duration.ofSeconds(10)).until(() ->
+            client.toBlocking().retrieve(
+                HttpRequest.GET("/api/v1/main/executions/" + execution.getId()),
+                Execution.class
+            ).getState().isTerminated()
+        );
 
         BulkResponse result = client.toBlocking().retrieve(
             POST(
