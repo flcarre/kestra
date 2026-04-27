@@ -4857,6 +4857,245 @@ paths:
       responses:
         "200":
           description: deleteLogsFromFlow 200 response
+  /api/v1/{tenant}/mcp/servers:
+    get:
+      tags:
+      - Mcp
+      summary: List MCP servers
+      operationId: listMcps
+      parameters:
+      - name: page
+        in: query
+        description: The current page
+        explode: false
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+          default: 1
+      - name: size
+        in: query
+        description: The current page size
+        explode: false
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+          default: 10
+      - name: sort
+        in: query
+        description: The sort of current page
+        explode: false
+        schema:
+          type: array
+          nullable: true
+          items:
+            type: string
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: listMcps 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResults_ApiMcpServer_"
+    post:
+      tags:
+      - Mcp
+      summary: Create an MCP server
+      operationId: createMcp
+      parameters:
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The MCP server to create
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiMcpServer"
+        required: true
+      responses:
+        "200":
+          description: createMcp 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiMcpServer"
+  /api/v1/{tenant}/mcp/servers/{id}:
+    get:
+      tags:
+      - Mcp
+      summary: Get an MCP server
+      operationId: getMcp
+      parameters:
+      - name: id
+        in: path
+        description: The MCP server id
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: getMcp 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiMcpServer"
+    put:
+      tags:
+      - Mcp
+      summary: Update an MCP server
+      operationId: updateMcp
+      parameters:
+      - name: id
+        in: path
+        description: The MCP server id
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The MCP server to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiMcpServer"
+        required: true
+      responses:
+        "200":
+          description: updateMcp 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiMcpServer"
+    delete:
+      tags:
+      - Mcp
+      summary: Delete an MCP server
+      operationId: deleteMcp
+      parameters:
+      - name: id
+        in: path
+        description: The MCP server id
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: deleteMcp 200 response
+  /api/v1/{tenant}/mcp/servers/{id}/toggle:
+    patch:
+      tags:
+      - Mcp
+      summary: Toggle an MCP server's enabled state
+      operationId: toggleMcp
+      parameters:
+      - name: id
+        in: path
+        description: The MCP server id
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: toggleMcp 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiMcpServer"
+  /api/v1/{tenant}/mcp/{id}:
+    get:
+      operationId: handleGetRequest
+      parameters:
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: handleGetRequest 200 response
+          content:
+            text/event-stream:
+              schema:
+                type: object
+    post:
+      operationId: handleRequest
+      parameters:
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: handleRequest 200 response
+          content:
+            text/event-stream:
+              schema:
+                type: object
+            application/json:
+              schema:
+                type: object
+    delete:
+      operationId: handleDeleteRequest
+      parameters:
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: handleDeleteRequest 200 response
+          content:
+            text/event-stream:
+              schema:
+                type: object
+            application/json:
+              schema:
+                type: object
   /api/v1/{tenant}/metrics/aggregates/{namespace}/{flowId}/{metric}:
     get:
       tags:
@@ -6972,6 +7211,55 @@ components:
           $ref: "#/components/schemas/ExecutionKind"
         loopRun:
           $ref: "#/components/schemas/LoopRun"
+    ApiMcpServer:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          minLength: 1
+          pattern: "^[a-z0-9][a-z0-9_-]*"
+          type: string
+          description: Unique identifier of the MCP server.
+        description:
+          type: string
+          description: Human-readable description of the MCP server.
+        instructions:
+          type: string
+          description: Instructions sent to the AI model when using this server.
+        serverType:
+          description: Visibility of the server.
+          allOf:
+          - $ref: "#/components/schemas/McpServer.ServerType"
+        authType:
+          description: Authentication type for private servers.
+          allOf:
+          - $ref: "#/components/schemas/McpServer.AuthType"
+        enabled:
+          type: boolean
+          description: Whether the MCP server is enabled.
+        isDefault:
+          type: boolean
+          description: "Whether this is the default MCP server, auto-provisioned per\
+            \ tenant."
+          readOnly: true
+        created:
+          type: string
+          description: Timestamp when the server was created.
+          format: date-time
+          readOnly: true
+        updated:
+          type: string
+          description: Timestamp when the server was last updated.
+          format: date-time
+          readOnly: true
+      description: |-
+        API DTO for MCP server creation, update, and retrieval.
+
+
+        Decouples the public API contract from the internal McpServer domain object.
+        Read-only fields (`isDefault`, `created`, `updated`) are
+        populated in responses and ignored in request bodies.
     ApiSecretListResponse_ApiSecretMeta_:
       required:
       - readOnly
@@ -8551,6 +8839,18 @@ components:
       properties:
         empty:
           type: boolean
+    McpServer.AuthType:
+      type: string
+      description: Authentication type for private servers.
+      enum:
+      - BASIC
+      - API_TOKEN
+    McpServer.ServerType:
+      type: string
+      description: Visibility of the server.
+      enum:
+      - PRIVATE
+      - PUBLIC
     Metric:
       type: object
       properties:
@@ -8772,6 +9072,19 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ApiLightExecution"
+        total:
+          type: integer
+          format: int64
+    PagedResults_ApiMcpServer_:
+      required:
+      - results
+      - total
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApiMcpServer"
         total:
           type: integer
           format: int64
