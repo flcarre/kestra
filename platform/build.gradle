@@ -43,7 +43,6 @@ dependencies {
 
     constraints {
         api("io.opentelemetry.proto:opentelemetry-proto:1.5.0")
-        // need to force this dep as mysql-connector brings a version incompatible with the Google Cloud libs
         api("com.google.protobuf:protobuf-java:$protobufVersion")
         api("com.google.protobuf:protobuf-java-util:$protobufVersion")
         // ugly hack for elastic plugins
